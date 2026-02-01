@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from gradcam import GradCAMpp
 import torch.nn.functional as func
+import os
 
 
 def visualize():
@@ -28,15 +29,16 @@ def PercentageDrop(img: np.ndarray, mask: np.ndarray):
     drop = (conf1 - conf2) / (conf1 + 1e-12) * 100.0
     return drop
 
+
+path = "/Users/francescoaldoventurelli/qml/gradcamPP/newFeatureExtracted"
 test_data_path = "/Users/francescoaldoventurelli/Downloads/test_dataset.pt"
 datatest = torch.load(test_data_path, weights_only=False)
-imgClass = 0; idx = [0,1,2,3,5,6,7,8,9,10,11,12,13,14,15,17,18,19]; beta=0.7
-model = torch.load("/Users/francescoaldoventurelli/qml/projet_one/model_16_features_trained_20_epochs", weights_only=False, map_location=torch.device('cpu'))
-
+imgClass = 9; idx = os.listdir(os.path.join(path, f"class{imgClass}")); beta=0.7
+model = torch.load("/Users/francescoaldoventurelli/qml/gradcamPP/model_16_features_trained_20_epochs", weights_only=False, map_location=torch.device('cpu'))
+print(idx)
 dropList = []
 for x in idx:
-    with np.load(
-            f"/Users/francescoaldoventurelli/qml/projet_one/newFeatureExtracted/class{imgClass}/Img_class_{imgClass}_idx_{x}_beta_{beta}.npz") as data:
+    with np.load(os.path.join(path, f"class{imgClass}", x), allow_pickle=True) as data:
         inputTensor = data["input_tensor"]
         inputTensor = torch.unsqueeze(torch.from_numpy(inputTensor), 0)
 
